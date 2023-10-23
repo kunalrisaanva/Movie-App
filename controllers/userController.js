@@ -29,7 +29,7 @@ async function createToken(id) {
 const userSignup = async (req, res) => {
   try {
     const { username, password , id} = req.body;
-   
+
     const user = await User.findOne({ username: username });
     if (user) {
       res.status(400).send({ msg: "this user aleady exist" });

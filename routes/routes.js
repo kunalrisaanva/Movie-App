@@ -35,25 +35,25 @@ routes.post("/logout", verifyToken, userController.logout);
 
 // movie  routes
 
-routes.get("/movies", movieController.moviesList);
-routes.get("/movies/:id", movieController.speceficMovie);
-routes.get("/movies/:id/rate", movieController.rateMovie);
-routes.get("/movies/movies/:id/reviews", movieController.getReviews);
+routes.get("/movies",verifyToken, movieController.moviesList);
+routes.get("/movies/:id",verifyToken, movieController.speceficMovie);
+routes.get("/movies/:id/rate",verifyToken, movieController.rateMovie);
+routes.get("/movies/movies/:id/reviews",verifyToken, movieController.getReviews);
 
 // user routes
 
-routes.get("/users/:id", userController.user);
+routes.get("/users/:id",verifyToken, userController.user);
 
-routes.get("/users/:id/ratings", userController.getRatedMovies);
-routes.get("/users/:id/reviews", userController.getReview);
-routes.post("/reviews", movieController.createReview);
-routes.get("/reviews/:id", movieController.specificReview);
-routes.post("/reviews/:id/edit", movieController.editeExistReview);
-routes.get("/reviews/:id/delete", movieController.deleteReview);
-routes.get("/search/movies", movieController.searchMovie);
-routes.get("/recomandation", movieController.recomondationMovie);
-routes.get("/genres", movieController.genres);
-routes.get("/actors", movieController.actors);
-routes.get("/directors", movieController.directors);
+routes.get("/users/:id/ratings",verifyToken, userController.getRatedMovies);
+routes.get("/users/:id/reviews",verifyToken, userController.getReview);
+routes.post("/reviews",verifyToken, movieController.createReview);
+routes.get("/reviews/:id",verifyToken, movieController.specificReview);
+routes.post("/reviews/:id/edit",verifyToken, movieController.editeExistReview);
+routes.get("/reviews/:id/delete",verifyToken, movieController.deleteReview);
+routes.get("/search/movies",verifyToken, movieController.searchMovie);
+routes.get("/recomandation",verifyToken, movieController.recomondationMovie);
+routes.get("/genres",verifyToken, movieController.genres);
+routes.get("/actors",verifyToken, movieController.actors);
+routes.get("/directors",verifyToken, movieController.directors);
 
 module.exports = routes;

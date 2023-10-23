@@ -3,9 +3,14 @@ const { Movie } = require("../models/allModel");
 // Retrieve a list of movies.
 
 const moviesList = async (req, res) => {
+
   try {
+
     const movies = await Movie.find();
 
+    console.log('started');
+
+    
     res.status(200).send({ status: "sucess", movies: movies });
   } catch (error) {
     res.status(400).send({ msg: error.message });
