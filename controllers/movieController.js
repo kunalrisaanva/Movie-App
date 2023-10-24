@@ -36,7 +36,7 @@ const speceficMovie = async (req, res) => {
 const rateMovie = async (req, res) => {
   try {
     const { _id, rate } = req.body;
-
+    
     const movie = await Movie.findByIdAndUpdate(
       { _id: _id },
       { $set: { rating: rate } },

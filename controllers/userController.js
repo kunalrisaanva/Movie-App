@@ -63,6 +63,7 @@ const userLogin = async (req, res) => {
       const isMatch = await bcrypt.compare(password, user.password);
       if (isMatch) {
         const token = await createToken(user._id);
+
         const userUpdateData = await User.findByIdAndUpdate(
           { _id: user._id },
           {
