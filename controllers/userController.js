@@ -17,7 +17,7 @@ async function passwordHash(password) {
 // create token
 
 async function createToken(id) {
-  console.log(id, "user id");
+  
   const token = await jwt.sign({ _id: id }, process.env.SECRET_KEY, {
     expiresIn: "1d",
   });
@@ -77,7 +77,7 @@ const userLogin = async (req, res) => {
 
         const session = req.session;
         session.user_session = userUpdateData;
-       console.log(session.user_session)
+      
 
         res
           .send({
@@ -105,7 +105,7 @@ const logout = async (req, res) => {
     const user = await User.findOne({
       username: req.session.user_session.username,
     });
-    console.log(user);
+  
 
     const updateToken = await User.updateOne(
       { username: user.username },
@@ -126,7 +126,7 @@ const logout = async (req, res) => {
 const user = async (req, res) => {
   try {
     const _id = req.body._id;
-    console.log(_id);
+    
     const user = await User.findById(_id);
 
     res.send({ msg: "sucesss", user: user }).status(200);
@@ -158,11 +158,11 @@ const getReview = async (req, res) => {
     const { user_id } = req.body;
 
     const movie = await Movie.find({ user_id: user_id });
-    console.log(movie);
+    
     const movieData = movie.map((data) => {
       return data.reviews;
     });
-    console.log(movieData);
+    
     res
       .send({ msg: "sucess,'this user all reviews ", review: movieData })
       .status(200);
