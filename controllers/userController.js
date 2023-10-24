@@ -77,6 +77,7 @@ const userLogin = async (req, res) => {
 
         const session = req.session;
         session.user_session = userUpdateData;
+       console.log(session.user_session)
 
         res
           .send({
@@ -100,7 +101,7 @@ const userLogin = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    console.log(req.session.user_session.username);
+ 
     const user = await User.findOne({
       username: req.session.user_session.username,
     });

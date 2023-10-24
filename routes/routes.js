@@ -4,16 +4,17 @@ const routes = express.Router();
 
 //express-session
 
-const express_session = require("express-session");
+const sessions = require("express-session");
+const cookieParser = require("cookie-parser")
+const oneDay = 1000 * 60 * 60 * 24;
+routes.use(sessions({
+    secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
+    saveUninitialized:true,
+    cookie: { maxAge: oneDay },
+    resave: false 
+}));
 
-routes.use(
-  express_session({
-    secret: "secretkey",
-    resave: true,
-    saveUninitialized: true,
-    cookie: { maxAge: 300000 },
-  })
-);
+routes.use(cookieParser());
 
 // controolers
 

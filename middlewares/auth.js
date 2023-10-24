@@ -3,43 +3,32 @@ require("dotenv").config();
 const { User } = require("../models/allModel");
 
 
-const secret_key = process.env.SECRET_KEY
+const secret_key = process.env.SECRET_KEY;
 
-const verifyToken = async(req,res,next) => {
 
-    try {
+const verifyToken = async (req, res, next) => {
+  try {
+    const token =
+      req.body.token || req.query.token || req.headers["authorization"];
 
-   const token = req.body.token || req.query.token || req.headers["authorization"];
+    if (!token) {
+      res
+        .status(200)
+        .send({ success: false, msg: "token is required for authrization..." });
+    } else {
+      if (token === req.session.user_session.token) {
+        const decode = await jwt.verify(token, secret_key);
 
-   if(!token){
+        req.user = decode;
 
-       res.status(200).send({success:false,msg:"token is required for authrization..."});
-
-   }else{
-
-        const tokenFromServer = await User.findOne({username:req.session.user_session.username});
-
-        if(token === tokenFromServer.token){
-
-            const decode  = await jwt.verify(token,secret_key);
-
-            req.user = decode;
-            return next();
-
-        }
-     
-   }
+        return next();
+      } else {
+        res.send({ msg: " token is not correct " }).status(401);
+      }
+    }
   } catch (error) {
-
-   res.status(401).send("invalid token");
-   
+    res.status(401).send("invalid token");
   }
-}; 
+};
 
-
-  
-
-
-module.exports = { verifyToken }
-
-
+module.exports = { verifyToken };
