@@ -227,8 +227,8 @@ const directors = async (req, res) => {
 
     const uniqueObject = removeDuplicateValues(data);
 
-    // res.send({ msg: "here is the availble directors ", data: finalData }).status(200)
-    res.json(uniqueObject);
+    res.send({ msg: "here is the availble directors ", data: uniqueObject }).status(200)
+    // res.json(uniqueObject);
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
