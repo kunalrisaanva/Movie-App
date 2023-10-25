@@ -10,7 +10,7 @@ const moviesList = async (req, res) => {
 
     console.log('started');
 
-    
+
     res.status(200).send({ status: "sucess", movies: movies });
   } catch (error) {
     res.status(400).send({ msg: error.message });
@@ -36,7 +36,7 @@ const speceficMovie = async (req, res) => {
 const rateMovie = async (req, res) => {
   try {
     const { _id, rate } = req.body;
-    
+
     const movie = await Movie.findByIdAndUpdate(
       { _id: _id },
       { $set: { rating: rate } },
@@ -128,7 +128,7 @@ const deleteReview = async (req, res) => {
 const searchMovie = async (req, res) => {
   try {
     const { title, genres } = req.body;
-    console.log(title, genres);
+
     const movie = await Movie.find({
       $or: [{ title: title }, { genres: genres }],
     });
@@ -178,18 +178,16 @@ function removeDuplicateValues(obj) {
 
 const genres = async (req, res) => {
   try {
-    const movie = await Movie.find({
-      $where: function () {
-        return this.genres;
-      },
-    });
 
-    const genresData = movie.map((data) => {
-      return data.genres;
-    });
+    const genresData = await Movie.find()
+    const data = genresData.map((data, i) => {
+      return data.genres
+    })
 
-    const uniqueObject = removeDuplicateValues(genresData);
 
+
+    const uniqueObject = removeDuplicateValues(data);
+    console.log(uniqueObject)
     res
       .send({ msg: "here is the availble genres ", data: uniqueObject })
       .status(200);
@@ -198,20 +196,18 @@ const genres = async (req, res) => {
   }
 };
 
+
+
 // Retrieve a list of actors.
 
 const actors = async (req, res) => {
   try {
-    const movie = await Movie.find({
-      $where: function () {
-        return this.actors;
-      },
-    });
 
-    const actors = movie.map((data) => {
-      return data.actors;
-    });
-    const uniqueObject = removeDuplicateValues(actors);
+    const genresData = await Movie.find()
+    const data = genresData.map((data, i) => {
+      return data.actors
+    })
+    const uniqueObject = removeDuplicateValues(data);
     res.send({ msg: "here is the availble actors ", data: uniqueObject });
 
     res.status(200);
@@ -224,16 +220,12 @@ const actors = async (req, res) => {
 
 const directors = async (req, res) => {
   try {
-    const movie = await Movie.find({
-      $where: function () {
-        return this.directors;
-      },
-    });
+    const genresData = await Movie.find()
+    const data = genresData.map((data, i) => {
+      return data.directors
+    })
 
-    const directors = movie.map((data) => {
-      return data.directors;
-    });
-    const uniqueObject = removeDuplicateValues(directors);
+    const uniqueObject = removeDuplicateValues(data);
 
     // res.send({ msg: "here is the availble directors ", data: finalData }).status(200)
     res.json(uniqueObject);

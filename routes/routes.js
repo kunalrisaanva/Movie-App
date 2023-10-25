@@ -53,8 +53,8 @@ routes.post("/reviews/:id/edit",verifyToken, movieController.editeExistReview);
 routes.get("/reviews/:id/delete",verifyToken, movieController.deleteReview);
 routes.get("/search/movies",verifyToken, movieController.searchMovie);
 routes.get("/recomandation",verifyToken, movieController.recomondationMovie);
-routes.get("/genres",verifyToken, movieController.genres);
-routes.get("/actors",verifyToken, movieController.actors);
-routes.get("/directors",verifyToken, movieController.directors);
+routes.get("/genres", movieController.genres);
+routes.get("/actors", movieController.actors);
+routes.get("/directors", movieController.directors);
 
 module.exports = routes;
