@@ -1,6 +1,9 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
-require("dotenv").config();
+const { connectDb } = require("./config/dbConnection");
+
+connectDb(process.env.url);
 
 // body parser
 
@@ -9,10 +12,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 /// db connection
-
-const { connectDb } = require("./config/dbConnection");
-
-connectDb(process.env.url);
 
 // routes
 

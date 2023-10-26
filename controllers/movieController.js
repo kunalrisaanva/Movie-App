@@ -5,9 +5,12 @@ const { Movie } = require("../models/allModel");
 const moviesList = async (req, res) => {
 
   try {
-   const data = req.params.id
-   console.log(data)
-    const movies = await Movie.find();
+
+  //  const data = req.params.id
+   
+    const movies = await Movie.find()
+    // console.log(movies)
+   
 
     res.status(200).send({ status: "sucess", movies: movies });
   } catch (error) {
@@ -17,7 +20,7 @@ const moviesList = async (req, res) => {
 
 // Get details of a specific movie. 
 
-const speceficMovie = async (req, res) => {
+const speceficMovie = async (req, res) => { 
   try {
 
     // const id = req.body.id || rs
@@ -41,14 +44,29 @@ const rateMovie = async (req, res) => {
   try {
     const id = req.params.id || req.body.rate
     const rate = req.body.rate || req.params.rate
+    console.log(id,rate)
+   const date =  await Movie.updateOne(
+      { "_id": id }, // Match the document with _id = 1
+      {
+        $push: {
+          "rating": {
+            "userId": id,
+            "ratings": rate
+          }
+        }
+      }
+    )
+    
+    console.log(date)
+    
   
-    const movie = await Movie.findByIdAndUpdate(
-      { _id: id },
-      { $set: { rating: rate } },
-      { new: true }
-    );
+    // const movie = await Movie.findByIdAndUpdate(
+    //   { _id: id },
+    //   { $set: { rating: rate } },
+    //   { new: true }
+    // );
 
-    res.status(200).send({ status: "sucess", movies: movie });
+    res.status(200).send({ status: "sucess", movies: date });
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
