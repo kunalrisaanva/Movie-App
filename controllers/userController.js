@@ -126,21 +126,26 @@ const logout = async (req, res) => {
 
 const user = async (req, res) => {
   try {
-    const _id = req.body._id;
-    
-    const user = await User.findById(_id);
 
+    const id = req.params.id || req.body.id
+  
+   
+    const user = await User.findById({_id:id});
+
+  
     res.send({ msg: "sucesss", user: user }).status(200);
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
 };
 
+
 // Rate a movie
 
 const getRatedMovies = async (req, res) => {
   try {
-    const { user_id } = req.body;
+    const  user_id  = req.params.id || req.body.id
+    // console.log(user_id)
     const movie = await Movie.find({ user_id: user_id });
     const dataMove = movie.map((data) => {
       return data;
@@ -156,7 +161,7 @@ const getRatedMovies = async (req, res) => {
 
 const getReview = async (req, res) => {
   try {
-    const { user_id } = req.body;
+    const user_id  = req.body.id || req.params.id
 
     const movie = await Movie.find({ user_id: user_id });
     
@@ -171,6 +176,7 @@ const getReview = async (req, res) => {
     res.status(400).send({ msg: error.message });
   }
 };
+
 
 const profile = async (req, res) => {
   try {

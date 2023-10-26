@@ -5,11 +5,9 @@ const { Movie } = require("../models/allModel");
 const moviesList = async (req, res) => {
 
   try {
-
+   const data = req.params.id
+   console.log(data)
     const movies = await Movie.find();
-
-    console.log('started');
-
 
     res.status(200).send({ status: "sucess", movies: movies });
   } catch (error) {
@@ -21,9 +19,13 @@ const moviesList = async (req, res) => {
 
 const speceficMovie = async (req, res) => {
   try {
-    const _id = req.body.id;
 
-    const movies = await Movie.findById(_id);
+    // const id = req.body.id || rs
+
+    const id  = req.params.id || req.body
+    
+
+    const movies = await Movie.findById({_id:id});
 
     res.status(200).send({ status: "sucess", movies: movies });
   } catch (error) {
@@ -31,14 +33,17 @@ const speceficMovie = async (req, res) => {
   }
 };
 
+
+
 // Get rated movies for a user
 
 const rateMovie = async (req, res) => {
   try {
-    const { _id, rate } = req.body;
-
+    const id = req.params.id || req.body.rate
+    const rate = req.body.rate || req.params.rate
+  
     const movie = await Movie.findByIdAndUpdate(
-      { _id: _id },
+      { _id: id },
       { $set: { rating: rate } },
       { new: true }
     );
@@ -82,10 +87,11 @@ const createReview = async (req, res) => {
 
 const specificReview = async (req, res) => {
   try {
-    const { _id } = req.body;
-    const movie = await Movie.findById(_id);
-    console.log(movie);
-    res.status(200).send({ msg: "you have created this review ", data: movie });
+    const id  = req.body.id || req.params.id
+    console.log(id)
+    const movie = await Movie.findById({_id:id});
+    
+    res.status(200).send({ msg: "Here is the data you want  ", data: movie });
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
@@ -95,8 +101,9 @@ const specificReview = async (req, res) => {
 
 const editeExistReview = async (req, res) => {
   try {
-    const { _id, review } = req.body;
-    console.log(_id, review);
+    const  review  = req.body.review || req.body.params
+    const _id = req.params.id || req.body.id
+   
     const movie = await Movie.findByIdAndUpdate(
       { _id: _id },
       { $set: { reviews: review } },
@@ -113,7 +120,7 @@ const editeExistReview = async (req, res) => {
 
 const deleteReview = async (req, res) => {
   try {
-    const { _id } = req.body;
+    const _id = req.body.id || req.params.id
     console.log(_id);
     const movie = await Movie.findByIdAndDelete({ _id: _id });
 
@@ -127,7 +134,7 @@ const deleteReview = async (req, res) => {
 
 const searchMovie = async (req, res) => {
   try {
-    const { title, genres } = req.body;
+    const { title, genres } = req.body || re
 
     const movie = await Movie.find({
       $or: [{ title: title }, { genres: genres }],
