@@ -1,65 +1,71 @@
+const session = require("express-session");
 const { Movie } = require("../models/allModel");
 
 // Retrieve a list of movies.
 
 const moviesList = async (req, res) => {
-
   try {
+    const movies = await Movie.find(
+      {},
+      {
+        rating: 0,
+        reviews: 0,
+        genres: 0,
+        actors: 0,
+        directors: 0,
+      }
+    );
 
-  //  const data = req.params.id
-   
-    const movies = await Movie.find()
-    // console.log(movies)
-   
-
-    res.status(200).send({ status: "sucess", movies: movies });
+    res.status(200).send({ status: "sucess", movies_name: movies });
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
 };
 
-// Get details of a specific movie. 
+// Get details of a specific movie.
 
-const speceficMovie = async (req, res) => { 
+const speceficMovie = async (req, res) => {
   try {
-
     // const id = req.body.id || rs
 
-    const id  = req.params.id || req.body
-    
+    const id = req.params.id || req.body;
 
-    const movies = await Movie.findById({_id:id});
+    const movies = await Movie.findById(
+      { _id: id },
+      {
+        rating: 0,
+        reviews: 0,
+        genres: 0,
+        actors: 0,
+        directors: 0,
+      }
+    );
 
     res.status(200).send({ status: "sucess", movies: movies });
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
 };
-
-
 
 // Get rated movies for a user
 
 const rateMovie = async (req, res) => {
   try {
-    const id = req.params.id || req.body.rate
-    const rate = req.body.rate || req.params.rate
-    console.log(id,rate)
-   const date =  await Movie.updateOne(
-      { "_id": id }, // Match the document with _id = 1
+    const id = req.params.id || req.body.rate;
+    const rate = req.body.rate || req.params.rate;
+    console.log(id, rate);
+    const date = await Movie.updateOne(
+      { _id: id }, // Match the document with _id = 1
       {
         $push: {
-          "rating": {
-            "userId": id,
-            "ratings": rate
-          }
-        }
+          rating: {
+            userId: req.session.user_session?._id,
+            ratings: rate,
+          },
+        },
       }
-    )
-    
-    console.log(date)
-    
-  
+    );
+
     // const movie = await Movie.findByIdAndUpdate(
     //   { _id: id },
     //   { $set: { rating: rate } },
@@ -76,12 +82,20 @@ const rateMovie = async (req, res) => {
 
 const getReviews = async (req, res) => {
   try {
-    const { _id } = req.body;
+    const _id = req.body.id || req.params.id;
     console.log(_id);
 
-    const movie = await Movie.findById(_id);
+    const movie = await Movie.findById(
+      { _id },
+      {
+        rating: 0,
+        genres: 0,
+        actors: 0,
+        directors: 0,
+      }
+    );
 
-    res.status(200).send({ status: "sucess", reviews: movie.reviews });
+    res.status(200).send({ status: "sucess", reviews: movie });
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
@@ -91,9 +105,20 @@ const getReviews = async (req, res) => {
 
 const createReview = async (req, res) => {
   try {
-    const { user_id, reviews, title, rating } = req.body;
-    const result = await Movie({ user_id, reviews, title, rating });
-    const data = await result.save();
+    const { reviews } = req.body;
+    const date = await Movie.updateOne(
+      { _id: req.session.user_session?._id }, // Match the document with _id = 1
+      {
+        $push: {
+          rating: {
+            userId: req.session.user_session._id,
+            reviews: reviews,
+          },
+        },
+      }
+    );
+    // const result = await Movie({ user_id, reviews, title, rating });
+    // const data = await result.save();
 
     res.status(200).send({ msg: "you have created this review ", data: data });
   } catch (error) {
@@ -105,11 +130,22 @@ const createReview = async (req, res) => {
 
 const specificReview = async (req, res) => {
   try {
-    const id  = req.body.id || req.params.id
-    console.log(id)
-    const movie = await Movie.findById({_id:id});
-    
-    res.status(200).send({ msg: "Here is the data you want  ", data: movie });
+    const id = req.body.id || req.params.id;
+
+    const reviewdData = await Movie.find(
+      { _id: id },
+      {
+        _id: 0,
+        rating: 0,
+        genres: 0,
+        actors: 0,
+        directors: 0,
+      }
+    );
+
+    res
+      .status(200)
+      .send({ msg: "Here is the data you want  ", data: reviewdData });
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
@@ -119,16 +155,46 @@ const specificReview = async (req, res) => {
 
 const editeExistReview = async (req, res) => {
   try {
-    const  review  = req.body.review || req.body.params
-    const _id = req.params.id || req.body.id
-   
-    const movie = await Movie.findByIdAndUpdate(
-      { _id: _id },
-      { $set: { reviews: review } },
-      { new: "true" }
+    const review = req.body.review || req.body.params;
+    const _id = req.params.id || req.body.id;
+    console.log("sta");
+
+    //   const data = await Movie.updateOne(
+    //     { _id : _id },
+    //     {
+    //        "$set": {
+    //           "reviews.reviews": review
+    //        }
+    //     }
+    //  );
+
+    const data = await Movie.updateOne(
+      {
+        "reviews.userId": _id,
+        //  "reviews.userId":req.session.user_session?._id  // Find the specific element to update
+      },
+      {
+        $set: {
+          "reviews.$.review": review, // Use the positional operator $
+        },
+      }
     );
 
-    res.status(200).send({ msg: "you have created this review ", data: movie });
+    const uptdateData = await Movie.find(
+      { "reviews.userId": _id },
+      {
+        id: 0,
+        title: 0,
+        genres: 0,
+        actors: 0,
+        directors: 0,
+        rating: 0,
+      }
+    );
+
+    res
+      .status(200)
+      .send({ msg: "you have edie this review ", data: uptdateData });
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
@@ -136,13 +202,34 @@ const editeExistReview = async (req, res) => {
 
 // Delete a review.
 
+
 const deleteReview = async (req, res) => {
   try {
-    const _id = req.body.id || req.params.id
-    console.log(_id);
-    const movie = await Movie.findByIdAndDelete({ _id: _id });
+    const _id = req.body.id || req.params.id;
+  //   const f = await Movie.updateOne(
+  //     { _id:_id },
+  //     {
+  //        "$unset": {
+  //           "reviews.review": ""
+  //        }
+  //     }
+  //  );
+   
 
-    res.status(200).send({ msg: `deleteed ${movie.title}` });
+    const data = await Movie.updateOne({
+      $or: [
+         {"reviews.userId":_id },
+      ]
+   },
+   {"$unset":{
+    "reviews.review":"",
+    "reviews.userId":""
+   }}
+   );
+   
+
+   console.log(f)
+    res.status(200).send({ msg: ` review  deleted    ` });
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
@@ -151,18 +238,30 @@ const deleteReview = async (req, res) => {
 // search point
 
 const searchMovie = async (req, res) => {
-  try {
-    const { title, genres } = req.body || re
 
+  try {
+
+    const { title, genre } = req.query 
+  
     const movie = await Movie.find({
       $or: [{ title: title }, { genres: genres }],
+    },{
+      _id:0,
+      genres:0,
+      
     });
+   
+   
+      res.status(200).send({ msg: "here is the movie", movieData: movie });
+    
 
-    res.status(200).send({ msg: "here is the movie", movieData: movie });
+ 
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
 };
+
+
 
 // Get movie recommendations for a user based on their preferences.
 
@@ -203,16 +302,13 @@ function removeDuplicateValues(obj) {
 
 const genres = async (req, res) => {
   try {
-
-    const genresData = await Movie.find()
+    const genresData = await Movie.find();
     const data = genresData.map((data, i) => {
-      return data.genres
-    })
-
-
+      return data.genres;
+    });
 
     const uniqueObject = removeDuplicateValues(data);
-    console.log(uniqueObject)
+    console.log(uniqueObject);
     res
       .send({ msg: "here is the availble genres ", data: uniqueObject })
       .status(200);
@@ -221,17 +317,14 @@ const genres = async (req, res) => {
   }
 };
 
-
-
 // Retrieve a list of actors.
 
 const actors = async (req, res) => {
   try {
-
-    const genresData = await Movie.find()
+    const genresData = await Movie.find();
     const data = genresData.map((data, i) => {
-      return data.actors
-    })
+      return data.actors;
+    });
     const uniqueObject = removeDuplicateValues(data);
     res.send({ msg: "here is the availble actors ", data: uniqueObject });
 
@@ -245,14 +338,16 @@ const actors = async (req, res) => {
 
 const directors = async (req, res) => {
   try {
-    const genresData = await Movie.find()
+    const genresData = await Movie.find();
     const data = genresData.map((data, i) => {
-      return data.directors
-    })
+      return data.directors;
+    });
 
     const uniqueObject = removeDuplicateValues(data);
 
-    res.send({ msg: "here is the availble directors ", data: uniqueObject }).status(200)
+    res
+      .send({ msg: "here is the availble directors ", data: uniqueObject })
+      .status(200);
     // res.json(uniqueObject);
   } catch (error) {
     res.status(400).send({ msg: error.message });

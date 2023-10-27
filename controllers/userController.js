@@ -145,13 +145,16 @@ const user = async (req, res) => {
 const getRatedMovies = async (req, res) => {
   try {
     const  user_id  = req.params.id || req.body.id
-    // console.log(user_id)
-    const movie = await Movie.find({ user_id: user_id });
-    const dataMove = movie.map((data) => {
-      return data;
-    });
 
-    res.send({ msg: "sucess", data: dataMove }).status(200);
+    const ratedData = await Movie.find({$or:
+    [{'rating':{"$elemMatch":{'userId':user_id}}}]},{
+      reviews:0,
+      genres:0,
+      actors:0,
+      directors:0
+    })
+
+    res.send({ msg: "this user reated thease movies", data: ratedData }).status(200);
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
@@ -163,14 +166,21 @@ const getReview = async (req, res) => {
   try {
     const user_id  = req.body.id || req.params.id
 
-    const movie = await Movie.find({ user_id: user_id });
+    const reviewdData = await Movie.find({$or:
+      [{'reviews':{"$elemMatch":{'userId':user_id}}}]},{
+        rating:0,
+        genres:0,
+        actors:0,
+        directors:0
+      })
+    // const movie = await Movie.find({ user_id: user_id });
     
-    const movieData = movie.map((data) => {
-      return data.reviews;
-    });
+    // const movieData = movie.map((data) => {
+    //   return data.reviews;
+    // });
     
     res
-      .send({ msg: "sucess,'this user all reviews ", review: movieData })
+      .send({ msg: "sucess,'this user all reviews ", review: reviewdData })
       .status(200);
   } catch (error) {
     res.status(400).send({ msg: error.message });

@@ -39,7 +39,7 @@ routes.post("/logout", verifyToken, userController.logout);
 routes.get("/movies", movieController.moviesList);
 routes.get("/movie/:id", movieController.speceficMovie);
 routes.post("/movies/:id/rate", movieController.rateMovie);
-routes.get("/movies/movies/:id/reviews", movieController.getReviews);
+routes.get("/movies/:id/reviews", movieController.getReviews);
 
 // user routes
 
@@ -50,8 +50,8 @@ routes.get("/users/:id/reviews", userController.getReview);
 routes.post("/reviews", movieController.createReview);
 routes.get("/reviews/:id", movieController.specificReview);
 routes.post("/reviews/:id/edit", movieController.editeExistReview);
-routes.get("/reviews/:id/delete", movieController.deleteReview);
-routes.get("/search/movies",verifyToken, movieController.searchMovie);
+routes.delete("/reviews/:id/delete", movieController.deleteReview);
+routes.get("/search/movies:", movieController.searchMovie);
 routes.get("/recomandation",verifyToken, movieController.recomondationMovie);
 routes.get("/genres",verifyToken, movieController.genres); 
 routes.get("/actors",verifyToken, movieController.actors);
