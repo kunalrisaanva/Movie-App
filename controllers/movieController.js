@@ -267,7 +267,8 @@ const searchMovie = async (req, res) => {
 
 const recomondationMovie = async (req, res) => {
   try {
-    const prefrence = req.body.prefrence;
+    const {prefrence} =  req.query
+    console.log(prefrence)
 
     const movieData = await Movie.find({ genres: prefrence });
 
