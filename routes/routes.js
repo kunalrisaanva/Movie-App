@@ -46,7 +46,7 @@ routes.get("/movies/:id/reviews", verifyToken, movieController.getReviews);
 routes.get("/users/:id", verifyToken, userController.user);
  
 routes.get("/users/:id/ratings", verifyToken, userController.getRatedMovies);
-routes.get("/users/:id/reviews", verifyToken, userController.getReview); 
+routes.get("/users/:id/reviews",verifyToken, userController.getReview); 
 routes.post("/reviews", verifyToken, movieController.createReview);
 routes.get("/reviews/:id", verifyToken, movieController.specificReview);
 routes.post("/reviews/:id/edit", verifyToken, movieController.editeExistReview);

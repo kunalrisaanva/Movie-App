@@ -100,6 +100,7 @@ const userLogin = async (req, res) => {
 
 //logout
 
+
 const logout = async (req, res) => {
   try {
  
@@ -165,7 +166,8 @@ const getRatedMovies = async (req, res) => {
 const getReview = async (req, res) => {
   try {
     const user_id  = req.body.id || req.params.id
-
+  
+  
     const reviewdData = await Movie.find({$or:
       [{'reviews':{"$elemMatch":{'userId':user_id}}}]},{
         rating:0,

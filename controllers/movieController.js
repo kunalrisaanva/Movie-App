@@ -4,6 +4,7 @@ const { Movie } = require("../models/allModel");
 // Retrieve a list of movies.
 
 const moviesList = async (req, res) => {
+  console.log("runnign")
   try {
     const movies = await Movie.find(
       {},
@@ -157,16 +158,7 @@ const editeExistReview = async (req, res) => {
   try {
     const review = req.body.review || req.body.params;
     const _id = req.params.id || req.body.id;
-    console.log("sta");
-
-    //   const data = await Movie.updateOne(
-    //     { _id : _id },
-    //     {
-    //        "$set": {
-    //           "reviews.reviews": review
-    //        }
-    //     }
-    //  );
+    
 
     const data = await Movie.updateOne(
       {
@@ -206,15 +198,6 @@ const editeExistReview = async (req, res) => {
 const deleteReview = async (req, res) => {
   try {
     const _id = req.body.id || req.params.id;
-  //   const f = await Movie.updateOne(
-  //     { _id:_id },
-  //     {
-  //        "$unset": {
-  //           "reviews.review": ""
-  //        }
-  //     }
-  //  );
-   
 
     const data = await Movie.updateOne({
       $or: [
@@ -229,7 +212,7 @@ const deleteReview = async (req, res) => {
    
 
    console.log(f)
-    res.status(200).send({ msg: ` review  deleted    ` });
+    res.status(200).send({ msg: ` review  deleted  ` });
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
