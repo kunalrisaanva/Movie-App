@@ -28,7 +28,7 @@ async function createToken(id) {
 
 const userSignup = async (req, res) => {
   try {
-    const { username, password , id} = req.body;
+    const { username, password } = req.body;
 
     const user = await User.findOne({ username: username });
     if (user) {
@@ -39,7 +39,7 @@ const userSignup = async (req, res) => {
       const user = new User({
         username,
         password: newHashPassword,
-        id
+        
       });
 
       const userData = await user.save();
@@ -128,10 +128,11 @@ const logout = async (req, res) => {
 const user = async (req, res) => {
   try {
 
-    const id = req.params.id || req.body.id
+    const _id = req.params.id || req.body.id
   
-   
-    const user = await User.findById({_id:id});
+    console.log(_id , "id")
+
+    const user = await User.findById(_id);
 
   
     res.send({ msg: "sucesss", user: user }).status(200);

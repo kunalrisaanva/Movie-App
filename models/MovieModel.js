@@ -1,23 +1,38 @@
 const mongoose = require("mongoose");
 
-const movieSchema = mongoose.Schema({
-  
+
+const movieSchema = new mongoose.Schema({
+
   title: {
     type: String,
     required: true,
+    lowercase:true,
+    uniqe:true
   },
-  rating: [
-    {
-      userId:String,
-      ratings:String
-    }
+
+  rating: [ {
+     userId:{
+       type:mongoose.Schema.Types.ObjectId,
+       ref:"User"
+     },
+     rate:{
+       type:String
+     }
+    },
   ],
-  reviews:[
-    {
-      userId:String,
-      review:String
-    }
+ 
+  reviews: [ {
+
+      userId:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User"
+      },
+      review:{
+        type:String
+      }
+     },
   ],
+
   genres: {
     type: String,
     required: true,
@@ -27,14 +42,14 @@ const movieSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-
+ 
   directors: {
     type: String,
     required: true,
   },
 });
 
-// director
-// actor
 
-module.exports = mongoose.model("Movie", movieSchema);
+
+module.exports = new mongoose.model("Movie", movieSchema);
+

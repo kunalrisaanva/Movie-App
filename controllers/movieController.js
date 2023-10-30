@@ -4,7 +4,7 @@ const { Movie } = require("../models/allModel");
 // Retrieve a list of movies.
 
 const moviesList = async (req, res) => {
-  console.log("runnign")
+ 
   try {
     const movies = await Movie.find(
       {},
@@ -67,12 +67,6 @@ const rateMovie = async (req, res) => {
       }
     );
 
-    // const movie = await Movie.findByIdAndUpdate(
-    //   { _id: id },
-    //   { $set: { rating: rate } },
-    //   { new: true }
-    // );
-
     res.status(200).send({ status: "sucess", movies: date });
   } catch (error) {
     res.status(400).send({ msg: error.message });
@@ -106,20 +100,19 @@ const getReviews = async (req, res) => {
 
 const createReview = async (req, res) => {
   try {
-    const { reviews } = req.body;
+    const { _id ,review } = req.body;
     const date = await Movie.updateOne(
       { _id: req.session.user_session?._id }, // Match the document with _id = 1
       {
         $push: {
-          rating: {
+          reviews: {
             userId: req.session.user_session._id,
-            reviews: reviews,
+            review: review,
           },
         },
       }
     );
-    // const result = await Movie({ user_id, reviews, title, rating });
-    // const data = await result.save();
+
 
     res.status(200).send({ msg: "you have created this review ", data: data });
   } catch (error) {
@@ -131,18 +124,21 @@ const createReview = async (req, res) => {
 
 const specificReview = async (req, res) => {
   try {
-    const id = req.body.id || req.params.id;
+    const _id = req.body.id || req.params.id;
 
-    const reviewdData = await Movie.find(
-      { _id: id },
-      {
-        _id: 0,
-        rating: 0,
-        genres: 0,
-        actors: 0,
-        directors: 0,
-      }
-    );
+    //  const data =  await Movie.findById({_id)})
+    //  console.log(data)
+
+    // const reviewdData = await Movie.find(
+    //   { _id: _id },
+    //   {
+    //     // _id: 1,
+    //     rating: 0,
+    //     genres: 0,
+    //     actors: 0,
+    //     directors: 0,
+    //   }
+    // );
 
     res
       .status(200)
@@ -338,6 +334,23 @@ const directors = async (req, res) => {
   }
 };
 
+
+const createMovie = async(req,res)=>{
+
+  try {
+
+ const data = req.body
+
+ const movieData =  await Movie.create(data)
+
+    res.send(movieData);
+
+  } catch (error) {
+    res.status(400).send({ msg: error.message });
+  }
+}
+
+
 module.exports = {
   moviesList,
   speceficMovie,
@@ -352,4 +365,5 @@ module.exports = {
   genres,
   actors,
   directors,
+  createMovie
 };
