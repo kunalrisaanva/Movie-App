@@ -17,7 +17,6 @@ async function passwordHash(password) {
 // create token
 
 async function createToken(id) {
-  
   const token = await jwt.sign({ _id: id }, process.env.SECRET_KEY, {
     expiresIn: "1d",
   });
@@ -39,7 +38,6 @@ const userSignup = async (req, res) => {
       const user = new User({
         username,
         password: newHashPassword,
-        
       });
 
       const userData = await user.save();
@@ -78,7 +76,6 @@ const userLogin = async (req, res) => {
 
         const session = req.session;
         session.user_session = userUpdateData;
-      
 
         res
           .send({
@@ -100,14 +97,11 @@ const userLogin = async (req, res) => {
 
 //logout
 
-
 const logout = async (req, res) => {
   try {
- 
     const user = await User.findOne({
       username: req.session.user_session.username,
     });
-  
 
     const updateToken = await User.updateOne(
       { username: user.username },
@@ -127,73 +121,71 @@ const logout = async (req, res) => {
 
 const user = async (req, res) => {
   try {
+    const _id = req.params.id || req.body.id;
 
-    const _id = req.params.id || req.body.id
-  
+    const user = await User.findById(_id);
 
-    const user = await User.findById(_id)
-  
-
-  
     res.send({ msg: "sucesss", user: user }).status(200);
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
 };
 
-
 // Rate a movie
+
 
 const getRatedMovies = async (req, res) => {
   try {
-    const  user_id  = req.params.id || req.body.id
-    
+    const user_id = req.params.id || req.body.id;
 
-    // {reviews:0}).populate({
-    //   path: "rating",
-    //   populate: {
-    //    path: "userId",
-    //    model: "User",
-    //    select: "-password -token -createdAt -updatedAt -__v",
-    //  },
-  //  })
-    // console.log(reated)
-    const ratedData = await Movie.find({$or:
-    [{'rating':{"$elemMatch":{'userId':user_id}}}]},{reviews:0}).populate({
-       path: "rating",
-       populate: {
+    const ratedData = await Movie.find(
+      {
+        $or: [{ rating: { $elemMatch: { userId: user_id } } }],
+      },
+      { reviews: 0, genres: 0, actors: 0, directors: 0 }
+    ).populate({
+      path: "rating",
+      populate: {
         path: "userId",
         model: "User",
         select: "-password -token -createdAt -updatedAt -__v ",
       },
-    })
+    });
 
-    res.send({ msg: "this user reated thease movies", data: ratedData }).status(200);
+    res
+      .send({ msg: "this user rated thease movies", data: ratedData })
+      .status(200);
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
 };
 
-// Get reviews for a movie
+
+//Get movie reviews submitted by a user.
 
 const getReview = async (req, res) => {
   try {
-    const user_id  = req.body.id || req.params.id
-  
-  
-    const reviewdData = await Movie.find({$or:
-      [{'reviews':{"$elemMatch":{'userId':user_id}}}]},{
-        rating:0,
-        genres:0,
-        actors:0,
-        directors:0
-      })
-    // const movie = await Movie.find({ user_id: user_id });
-    
-    // const movieData = movie.map((data) => {
-    //   return data.reviews;
-    // });
-    
+    const user_id = req.body.id || req.params.id;
+
+    const reviewdData = await Movie.find(
+      {
+        $or: [{ reviews: { $elemMatch: { userId: user_id } } }],
+      },
+      {
+        rating: 0,
+        genres: 0,
+        actors: 0,
+        directors: 0,
+      }
+    ).populate({
+      path: "reviews",
+      populate: {
+        path: "userId",
+        model: "User",
+        select: "-password -token -createdAt -updatedAt -__v ",
+      },
+    });
+
     res
       .send({ msg: "sucess,'this user all reviews ", review: reviewdData })
       .status(200);
@@ -201,7 +193,6 @@ const getReview = async (req, res) => {
     res.status(400).send({ msg: error.message });
   }
 };
-
 
 const profile = async (req, res) => {
   try {

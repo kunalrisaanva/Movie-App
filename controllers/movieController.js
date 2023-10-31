@@ -112,7 +112,7 @@ const createReview = async (req, res) => {
       {
         $push: {
           reviews: {
-            userId: req.session.user_session._id,
+            userId: req.session.user_session?._id,
             review: review,
           },
         },
