@@ -40,7 +40,9 @@ routes.post("/logout", userController.logout);
 
 routes.get("/movies", movieController.moviesList);
 routes.get("/movie/:id", movieController.speceficMovie);
-routes.post("/movies/:id/rate", movieController.rateMovie);
+
+routes.post("/movies/:id/rate",verifyToken, movieController.rateMovie);
+
 routes.get("/movies/:id/reviews", movieController.getReviews);
 
 // user routes

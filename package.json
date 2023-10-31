@@ -1,4 +1,10 @@
-{
+{ 
+
+  "author": {
+    "name": "kunal",
+    "email": "kunalrisaanva12@gmail.com"
+   
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",

@@ -4,7 +4,6 @@ const { Movie } = require("../models/allModel");
 // Retrieve a list of movies.
 
 const moviesList = async (req, res) => {
- 
   try {
     const movies = await Movie.find(
       {},
@@ -25,22 +24,28 @@ const moviesList = async (req, res) => {
 
 // Get details of a specific movie.
 
+
 const speceficMovie = async (req, res) => {
   try {
-    // const id = req.body.id || rs
-
     const id = req.params.id || req.body;
 
-    const movies = await Movie.findById(
-      { _id: id },
-      {
-        rating: 0,
-        reviews: 0,
-        genres: 0,
-        actors: 0,
-        directors: 0,
-      }
-    );
+    const movies = await Movie.findById({ _id: id })
+      .populate({
+        path: "rating",
+        populate: {
+          path: "userId",
+          model: "User",
+          select: "-password -token",
+        },
+      })
+      .populate({
+        path: "reviews",
+        populate: {
+          path: "userId",
+          model: "User",
+          select: "-password -token",
+        },
+      });
 
     res.status(200).send({ status: "sucess", movies: movies });
   } catch (error) {
@@ -61,7 +66,7 @@ const rateMovie = async (req, res) => {
         $push: {
           rating: {
             userId: req.session.user_session?._id,
-            ratings: rate,
+            rate: rate,
           },
         },
       }
@@ -78,17 +83,18 @@ const rateMovie = async (req, res) => {
 const getReviews = async (req, res) => {
   try {
     const _id = req.body.id || req.params.id;
-    console.log(_id);
-
+  
     const movie = await Movie.findById(
-      { _id },
-      {
-        rating: 0,
-        genres: 0,
-        actors: 0,
-        directors: 0,
-      }
-    );
+      { _id } , {rating:0}
+    )
+    .populate({
+      path: "reviews",
+      populate: {
+        path: "userId",
+        model: "User",
+        select: "-password -token -createdAt -updatedAt -__v",
+      },
+    });
 
     res.status(200).send({ status: "sucess", reviews: movie });
   } catch (error) {
@@ -100,7 +106,7 @@ const getReviews = async (req, res) => {
 
 const createReview = async (req, res) => {
   try {
-    const { _id ,review } = req.body;
+    const { _id, review } = req.body;
     const date = await Movie.updateOne(
       { _id: req.session.user_session?._id }, // Match the document with _id = 1
       {
@@ -112,7 +118,6 @@ const createReview = async (req, res) => {
         },
       }
     );
-
 
     res.status(200).send({ msg: "you have created this review ", data: data });
   } catch (error) {
@@ -129,16 +134,16 @@ const specificReview = async (req, res) => {
     //  const data =  await Movie.findById({_id)})
     //  console.log(data)
 
-    // const reviewdData = await Movie.find(
-    //   { _id: _id },
-    //   {
-    //     // _id: 1,
-    //     rating: 0,
-    //     genres: 0,
-    //     actors: 0,
-    //     directors: 0,
-    //   }
-    // );
+    const reviewdData = await Movie.find(
+      { _id: _id },
+      {
+        // _id: 1,
+        rating: 0,
+        genres: 0,
+        actors: 0,
+        directors: 0,
+      }
+    );
 
     res
       .status(200)
@@ -154,7 +159,6 @@ const editeExistReview = async (req, res) => {
   try {
     const review = req.body.review || req.body.params;
     const _id = req.params.id || req.body.id;
-    
 
     const data = await Movie.updateOne(
       {
@@ -190,24 +194,23 @@ const editeExistReview = async (req, res) => {
 
 // Delete a review.
 
-
 const deleteReview = async (req, res) => {
   try {
     const _id = req.body.id || req.params.id;
 
-    const data = await Movie.updateOne({
-      $or: [
-         {"reviews.userId":_id },
-      ]
-   },
-   {"$unset":{
-    "reviews.review":"",
-    "reviews.userId":""
-   }}
-   );
-   
+    const data = await Movie.updateOne(
+      {
+        $or: [{ "reviews.userId": _id }],
+      },
+      {
+        $unset: {
+          "reviews.review": "",
+          "reviews.userId": "",
+        },
+      }
+    );
 
-   console.log(f)
+    console.log(f);
     res.status(200).send({ msg: ` review  deleted  ` });
   } catch (error) {
     res.status(400).send({ msg: error.message });
@@ -217,37 +220,31 @@ const deleteReview = async (req, res) => {
 // search point
 
 const searchMovie = async (req, res) => {
-
   try {
+    const { title, genre } = req.query;
 
-    const { title, genre } = req.query 
-  
-    const movie = await Movie.find({
-      $or: [{ title: title }, { genres: genres }],
-    },{
-      _id:0,
-      genres:0,
-      
-    });
-   
-   
-      res.status(200).send({ msg: "here is the movie", movieData: movie });
-    
+    const movie = await Movie.find(
+      {
+        $or: [{ title: title }, { genres: genres }],
+      },
+      {
+        _id: 0,
+        genres: 0,
+      }
+    );
 
- 
+    res.status(200).send({ msg: "here is the movie", movieData: movie });
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
 };
 
-
-
 // Get movie recommendations for a user based on their preferences.
 
 const recomondationMovie = async (req, res) => {
   try {
-    const {prefrence} =  req.query
-    console.log(prefrence)
+    const { prefrence } = req.query;
+    console.log(prefrence);
 
     const movieData = await Movie.find({ genres: prefrence });
 
@@ -334,22 +331,17 @@ const directors = async (req, res) => {
   }
 };
 
-
-const createMovie = async(req,res)=>{
-
+const createMovie = async (req, res) => {
   try {
+    const data = req.body;
 
- const data = req.body
-
- const movieData =  await Movie.create(data)
+    const movieData = await Movie.create(data);
 
     res.send(movieData);
-
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
-}
-
+};
 
 module.exports = {
   moviesList,
@@ -365,5 +357,5 @@ module.exports = {
   genres,
   actors,
   directors,
-  createMovie
+  createMovie,
 };

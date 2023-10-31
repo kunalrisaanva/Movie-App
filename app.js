@@ -19,6 +19,10 @@ const routes = require("./routes/routes");
 
 app.use("/", routes);
 
+// app.use((req, res, next) => {
+//   res.setHeader('Authorization', 'YourHeaderValue');
+//   next();
+// });
 // port listening
 
 app.listen(process.env.PORT, () =>

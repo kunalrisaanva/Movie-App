@@ -11,13 +11,13 @@ const userSchema = mongoose.Schema({
     password:{
         type:String,
         required:true,
-        lowercase:true
+        // lowercase:true
     },
     token:{
         type:String,
         default:""
     },
-    
+  
 }, { timestamps: true })
 
 module.exports =  mongoose.model("User",userSchema)

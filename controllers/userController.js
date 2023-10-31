@@ -130,9 +130,9 @@ const user = async (req, res) => {
 
     const _id = req.params.id || req.body.id
   
-    console.log(_id , "id")
 
-    const user = await User.findById(_id);
+    const user = await User.findById(_id)
+  
 
   
     res.send({ msg: "sucesss", user: user }).status(200);
@@ -147,13 +147,25 @@ const user = async (req, res) => {
 const getRatedMovies = async (req, res) => {
   try {
     const  user_id  = req.params.id || req.body.id
+    
 
+    // {reviews:0}).populate({
+    //   path: "rating",
+    //   populate: {
+    //    path: "userId",
+    //    model: "User",
+    //    select: "-password -token -createdAt -updatedAt -__v",
+    //  },
+  //  })
+    // console.log(reated)
     const ratedData = await Movie.find({$or:
-    [{'rating':{"$elemMatch":{'userId':user_id}}}]},{
-      reviews:0,
-      genres:0,
-      actors:0,
-      directors:0
+    [{'rating':{"$elemMatch":{'userId':user_id}}}]},{reviews:0}).populate({
+       path: "rating",
+       populate: {
+        path: "userId",
+        model: "User",
+        select: "-password -token -createdAt -updatedAt -__v ",
+      },
     })
 
     res.send({ msg: "this user reated thease movies", data: ratedData }).status(200);
