@@ -1,6 +1,7 @@
 const { User, Movie } = require("../models/allModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const mongoose = require("mongoose");
 require("dotenv").config();
 
 //  password hash
@@ -133,63 +134,80 @@ const user = async (req, res) => {
 
 // Rate a movie
 
-
 const getRatedMovies = async (req, res) => {
   try {
     const user_id = req.params.id || req.body.id;
 
-    const ratedData = await Movie.find(
+    const aggregateData = await Movie.aggregate([
       {
-        $or: [{ rating: { $elemMatch: { userId: user_id } } }],
+        $unwind: "$rating",
       },
-      { reviews: 0, genres: 0, actors: 0, directors: 0 }
-    ).populate({
-      path: "rating",
-      populate: {
-        path: "userId",
-        model: "User",
-        select: "-password -token -createdAt -updatedAt -__v ",
+      {
+        $match: { "rating.userId": new mongoose.Types.ObjectId(user_id) },
       },
+      {
+        $project: { reviews: 0 },
+      },
+    ]);
+
+    const rate = await Movie.populate(aggregateData, {
+      path: "rating.userId",
+      select: "-password -token -createdAt -updatedAt -__v ",
     });
 
-    res
-      .send({ msg: "this user rated thease movies", data: ratedData })
-      .status(200);
+    res.send({ msg: "this user rated thease movies", data: rate }).status(200);
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
 };
 
-
 //Get movie reviews submitted by a user.
 
 const getReview = async (req, res) => {
+
   try {
     const user_id = req.body.id || req.params.id;
 
-    const reviewdData = await Movie.find(
+  
+    const aggregateData = await Movie.aggregate([
       {
-        $or: [{ reviews: { $elemMatch: { userId: user_id } } }],
+        $unwind: "$reviews",
       },
       {
-        rating: 0,
-        genres: 0,
-        actors: 0,
-        directors: 0,
-      }
-    ).populate({
-      path: "reviews",
-      populate: {
-        path: "userId",
-        model: "User",
-        select: "-password -token -createdAt -updatedAt -__v ",
+        $match: { "reviews.userId": new mongoose.Types.ObjectId(user_id) },
       },
+      {
+        $project: { rating: 0 },
+      },
+    ]);
+
+
+    const data = await Movie.populate(aggregateData, {
+      path: "reviews.userId",
+      select: "-password -token -createdAt -updatedAt -__v ",
     });
 
     res
-      .send({ msg: "sucess,'this user all reviews ", review: reviewdData })
+      .send({ msg: "sucess,'this user all reviews ", review: data })
       .status(200);
-  } catch (error) {
+  } catch (error) {  // const reviewdData = await Movie.find(
+    //   {
+    //     $or: [{ reviews: { $elemMatch: { userId: user_id } } }],
+    //   },
+    //   {
+    //     rating: 0,
+    //     genres: 0,
+    //     actors: 0,
+    //     directors: 0,
+    //   }
+    // ).populate({
+    //   path: "reviews",
+    //   populate: {
+    //     path: "userId",
+    //     model: "User",
+    //     select: "-password -token -createdAt -updatedAt -__v ",
+    //   },
+    // });
     res.status(400).send({ msg: error.message });
   }
 };

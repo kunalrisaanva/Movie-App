@@ -7,13 +7,13 @@ const moviesList = async (req, res) => {
   try {
     const movies = await Movie.find(
       {},
-      {
-        rating: 0,
-        reviews: 0,
-        genres: 0,
-        actors: 0,
-        directors: 0,
-      }
+      // {
+      //   rating: 0,
+      //   reviews: 0,
+      //   genres: 0,
+      //   actors: 0,
+      //   directors: 0,
+      // }
     );
 
     res.status(200).send({ status: "sucess", movies_name: movies });
@@ -106,7 +106,7 @@ const getReviews = async (req, res) => {
 
 const createReview = async (req, res) => {
   try {
-    const { _id, review } = req.body;
+    const { review } = req.body;
     const date = await Movie.updateOne(
       { _id: req.session.user_session?._id }, // Match the document with _id = 1
       {
@@ -135,7 +135,7 @@ const specificReview = async (req, res) => {
     //  console.log(data)
 
     const reviewdData = await Movie.find(
-      { _id: _id },
+      { "reviews._id": _id },
       {
         // _id: 1,
         rating: 0,
@@ -160,33 +160,19 @@ const editeExistReview = async (req, res) => {
     const review = req.body.review || req.body.params;
     const _id = req.params.id || req.body.id;
 
+ 
     const data = await Movie.updateOne(
-      {
-        "reviews.userId": _id,
-        //  "reviews.userId":req.session.user_session?._id  // Find the specific element to update
-      },
-      {
-        $set: {
-          "reviews.$.review": review, // Use the positional operator $
-        },
-      }
-    );
+      { reviews: { $elemMatch: { _id: _id } }},
+      {$set :{"reviews.$[e].review":review }},
+      {arrayFilters:[{"e._id":{_id:_id}}]}
+    )
 
-    const uptdateData = await Movie.find(
-      { "reviews.userId": _id },
-      {
-        id: 0,
-        title: 0,
-        genres: 0,
-        actors: 0,
-        directors: 0,
-        rating: 0,
-      }
-    );
-
+   
     res
       .status(200)
-      .send({ msg: "you have edie this review ", data: uptdateData });
+      .send({ msg: "you have edie this review ", data: {
+        msg:"your "+ review +" review is updated"
+      } });
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }

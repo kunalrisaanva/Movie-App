@@ -10,17 +10,17 @@ const movieSchema = new mongoose.Schema({
     uniqe: true
   },
 
-  rating: [{
+  rating: [  {
 
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
-    },
-    rate: {
-      type: String
-    }
-  },
-  ],
+      userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User"
+        },
+        rate: {
+          type: String
+        }
+
+  } ],
 
   reviews: [{
 
