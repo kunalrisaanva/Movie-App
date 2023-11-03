@@ -1,26 +1,16 @@
 require("dotenv").config();
+const { connectDb } = require("./config/dbConnection");
+/// db connection
+connectDb(process.env.url);
 const express = require("express");
 const app = express();
-const { connectDb } = require("./config/dbConnection");
-
-connectDb(process.env.url);
-
+const port = process.env.PORT ||  9000
 // body parser
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
-
-// set heasder 
-
-// app.use((req, res, next) => {
-//   res.setHeader('Authorization', 'YourHeaderValue');
-//   next();
-// });
-
-/// db connection
 
 // routes
 
@@ -29,8 +19,9 @@ const routes = require("./routes/routes");
 app.use("/", routes);
 
 
+
 // port listening
 
-app.listen(process.env.PORT, () =>
+app.listen(port, () =>
   console.log(`server is running on PORT ${process.env.PORT}`)
 );

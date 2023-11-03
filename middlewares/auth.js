@@ -2,14 +2,14 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { User } = require("../models/allModel");
 
-
 const secret_key = process.env.SECRET_KEY;
-
 
 const verifyToken = async (req, res, next) => {
   try {
     const token =
-      req.body.token || req.query.token || req.headers["authorization"];
+      req.body.token ||
+      req.session.user_session.token ||
+      req.headers["authorization"];
 
     if (!token) {
       res
@@ -30,6 +30,5 @@ const verifyToken = async (req, res, next) => {
     res.status(401).send("invalid token");
   }
 };
-
 
 module.exports = { verifyToken };

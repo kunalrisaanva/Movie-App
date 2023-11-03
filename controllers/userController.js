@@ -53,6 +53,7 @@ const userSignup = async (req, res) => {
 
 // user login
 
+
 const userLogin = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -77,7 +78,7 @@ const userLogin = async (req, res) => {
 
         const session = req.session;
         session.user_session = userUpdateData;
-
+    
         res
           .send({
             user: userUpdateData,
