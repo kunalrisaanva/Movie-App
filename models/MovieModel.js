@@ -9,21 +9,29 @@ const movieSchema = new mongoose.Schema({
     lowercase: true,
     uniqe: true
   },
-
+  
   rating: [  {
 
-      userId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User"
-        },
-        rate: {
-          type: String
-        }
+    _id: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: () => new mongoose.Types.ObjectId(), 
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    },
+    rate: {
+      type: String
+    }
 
   } ],
 
   reviews: [{
-
+   
+    _id: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: () => new mongoose.Types.ObjectId(), 
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User"

@@ -190,24 +190,7 @@ const getReview = async (req, res) => {
     res
       .send({ msg: "sucess,'this user all reviews ", review: data })
       .status(200);
-  } catch (error) {  // const reviewdData = await Movie.find(
-    //   {
-    //     $or: [{ reviews: { $elemMatch: { userId: user_id } } }],
-    //   },
-    //   {
-    //     rating: 0,
-    //     genres: 0,
-    //     actors: 0,
-    //     directors: 0,
-    //   }
-    // ).populate({
-    //   path: "reviews",
-    //   populate: {
-    //     path: "userId",
-    //     model: "User",
-    //     select: "-password -token -createdAt -updatedAt -__v ",
-    //   },
-    // });
+  } catch (error) { 
     res.status(400).send({ msg: error.message });
   }
 };

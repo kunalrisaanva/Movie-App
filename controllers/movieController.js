@@ -1,19 +1,20 @@
 const session = require("express-session");
 const { Movie } = require("../models/allModel");
-
+const mongoose = require("mongoose");
 // Retrieve a list of movies.
 
 const moviesList = async (req, res) => {
   try {
+   
     const movies = await Movie.find(
       {},
-      // {
-      //   rating: 0,
-      //   reviews: 0,
-      //   genres: 0,
+      {
+        rating: 0,
+        reviews: 0,
+        genres: 0,
       //   actors: 0,
       //   directors: 0,
-      // }
+      }
     );
 
     res.status(200).send({ status: "sucess", movies_name: movies });
@@ -23,7 +24,6 @@ const moviesList = async (req, res) => {
 };
 
 // Get details of a specific movie.
-
 
 const speceficMovie = async (req, res) => {
   try {
@@ -83,11 +83,8 @@ const rateMovie = async (req, res) => {
 const getReviews = async (req, res) => {
   try {
     const _id = req.body.id || req.params.id;
-  
-    const movie = await Movie.findById(
-      { _id } , {rating:0}
-    )
-    .populate({
+
+    const movie = await Movie.findById({ _id }, { rating: 0 }).populate({
       path: "reviews",
       populate: {
         path: "userId",
@@ -106,9 +103,10 @@ const getReviews = async (req, res) => {
 
 const createReview = async (req, res) => {
   try {
+    const _id = req.params.id;
     const { review } = req.body;
-    const date = await Movie.updateOne(
-      { _id: req.session.user_session?._id }, // Match the document with _id = 1
+    const updatedDate = await Movie.updateOne(
+      { _id: _id },
       {
         $push: {
           reviews: {
@@ -119,7 +117,9 @@ const createReview = async (req, res) => {
       }
     );
 
-    res.status(200).send({ msg: "you have created this review ", data: data });
+    res
+      .status(200)
+      .send({ msg: "you have created this review ", data: updatedDate });
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
@@ -131,23 +131,21 @@ const specificReview = async (req, res) => {
   try {
     const _id = req.body.id || req.params.id;
 
-    //  const data =  await Movie.findById({_id)})
-    //  console.log(data)
-
-    const reviewdData = await Movie.find(
-      { "reviews._id": _id },
+    const aggregateData = await Movie.aggregate([
       {
-        // _id: 1,
-        rating: 0,
-        genres: 0,
-        actors: 0,
-        directors: 0,
-      }
-    );
+        $unwind: "$reviews",
+      },
+      {
+        $match: { "reviews._id": new mongoose.Types.ObjectId(_id) },
+      },
+      {
+        $project: { rating: 0, genres: 0, actors: 0, directors: 0 },
+      },
+    ]);
 
     res
       .status(200)
-      .send({ msg: "Here is the data you want  ", data: reviewdData });
+      .send({ msg: "Here is the data you want  ", data: aggregateData });
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
@@ -160,19 +158,18 @@ const editeExistReview = async (req, res) => {
     const review = req.body.review || req.body.params;
     const _id = req.params.id || req.body.id;
 
- 
     const data = await Movie.updateOne(
-      { reviews: { $elemMatch: { _id: _id } }},
-      {$set :{"reviews.$[e].review":review }},
-      {arrayFilters:[{"e._id":{_id:_id}}]}
-    )
+      { reviews: { $elemMatch: { _id: _id } } },
+      { $set: { "reviews.$[e].review": review } },
+      { arrayFilters: [{ "e._id": { _id: _id } }] }
+    );
 
-   
-    res
-      .status(200)
-      .send({ msg: "you have edie this review ", data: {
-        msg:"your "+ review +" review is updated"
-      } });
+    res.status(200).send({
+      msg: "you have edie this review ",
+      data: {
+        msg: "your " + review + " review is updated",
+      },
+    });
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
@@ -184,19 +181,15 @@ const deleteReview = async (req, res) => {
   try {
     const _id = req.body.id || req.params.id;
 
-    const data = await Movie.updateOne(
+    const deleteReview = await Movie.updateOne(
+      { "reviews._id": _id }, // Replace with the document's _id you want to update
       {
-        $or: [{ "reviews.userId": _id }],
-      },
-      {
-        $unset: {
-          "reviews.review": "",
-          "reviews.userId": "",
+        $pull: {
+          reviews: { _id: _id },
         },
       }
     );
 
-    console.log(f);
     res.status(200).send({ msg: ` review  deleted  ` });
   } catch (error) {
     res.status(400).send({ msg: error.message });
@@ -207,7 +200,7 @@ const deleteReview = async (req, res) => {
 
 const searchMovie = async (req, res) => {
   try {
-    const { title, genre } = req.query;
+    const { title, genres } = req.query;
 
     const movie = await Movie.find(
       {
@@ -216,6 +209,8 @@ const searchMovie = async (req, res) => {
       {
         _id: 0,
         genres: 0,
+        rating: 0,
+        reviews: 0,
       }
     );
 
@@ -232,7 +227,10 @@ const recomondationMovie = async (req, res) => {
     const { prefrence } = req.query;
     console.log(prefrence);
 
-    const movieData = await Movie.find({ genres: prefrence });
+    const movieData = await Movie.find(
+      { genres: prefrence },
+      { _id: 0, rating: 0, reviews: 0 }
+    );
 
     res.send({ msg: "here is the movies", data: movieData });
   } catch (error) {
@@ -271,7 +269,7 @@ const genres = async (req, res) => {
     });
 
     const uniqueObject = removeDuplicateValues(data);
-    console.log(uniqueObject);
+
     res
       .send({ msg: "here is the availble genres ", data: uniqueObject })
       .status(200);
@@ -311,11 +309,12 @@ const directors = async (req, res) => {
     res
       .send({ msg: "here is the availble directors ", data: uniqueObject })
       .status(200);
-    // res.json(uniqueObject);
   } catch (error) {
     res.status(400).send({ msg: error.message });
   }
 };
+
+// to create movie
 
 const createMovie = async (req, res) => {
   try {

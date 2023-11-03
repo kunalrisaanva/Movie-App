@@ -51,12 +51,15 @@ routes.get("/users/:id", userController.user);
  
 routes.get("/users/:id/ratings", userController.getRatedMovies);
 routes.get("/users/:id/reviews", userController.getReview); 
-routes.post("/reviews", movieController.createReview);
+routes.post("/review/:id", movieController.createReview);
+
 routes.get("/reviews/:id", movieController.specificReview);
 routes.post("/reviews/:id/edit", movieController.editeExistReview);
 routes.delete("/reviews/:id/delete", movieController.deleteReview);
+
 routes.get("/search/movies:", movieController.searchMovie);
 routes.get("/recomandation", movieController.recomondationMovie);
+
 routes.get("/genres:", movieController.genres); 
 routes.get("/actors:", movieController.actors);
 routes.get("/directors:", movieController.directors);
