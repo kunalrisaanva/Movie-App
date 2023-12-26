@@ -2,8 +2,9 @@ const mongoose = require("mongoose");
 
 
 async function connectDb(url){
-    await mongoose.connect(url)
-    console.log('db connected')
+  const conecntionsInstance =  await mongoose.connect(url);
+    console.log('db connected');
+    console.log(`\n DB HOST : ${conecntionsInstance.connection.host}`);
 }
 
 
