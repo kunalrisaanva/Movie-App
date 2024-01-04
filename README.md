@@ -1,12 +1,7 @@
 # movie-app
-she think project
-<hr>
-
 - [model-link](https://app.eraser.io/workspace/YtPqZ1VogxGy1jzIDkzj?origin=share)
 
 <hr>
-
-
 Authentication Endpoints:
 /signup: Register a new user.
 <hr>
