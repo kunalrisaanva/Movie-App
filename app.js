@@ -1,4 +1,4 @@
-require("dotenv").config();
+require('dotenv').config()
 const { connectDb } = require("./config/dbConnection");
 /// db connection
 connectDb()

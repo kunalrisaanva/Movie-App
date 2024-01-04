@@ -77,7 +77,7 @@ const userLogin = async (req, res) => {
         );
 
         const session = req.session;
-        session?.user_session = userUpdateData;
+        session.user_session = userUpdateData;
     
         res
           .send({
