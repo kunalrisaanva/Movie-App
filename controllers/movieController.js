@@ -27,7 +27,7 @@ const moviesList = async (req, res) => {
 
 const speceficMovie = async (req, res) => {
   try {
-    const id = req.params.id || req.body;
+    const id = req.params?.id || req.body;
 
     const movies = await Movie.findById({ _id: id })
       .populate({
@@ -57,7 +57,7 @@ const speceficMovie = async (req, res) => {
 
 const rateMovie = async (req, res) => {
   try {
-    const id = req.params.id || req.body.rate;
+    const id = req.params?.id || req.body.rate;
     const rate = req.body.rate || req.params.rate;
     console.log(id, rate);
     const date = await Movie.updateOne(
@@ -82,7 +82,7 @@ const rateMovie = async (req, res) => {
 
 const getReviews = async (req, res) => {
   try {
-    const _id = req.body.id || req.params.id;
+    const _id = req.body.id || req.params?.id;
 
     const movie = await Movie.findById({ _id }, { rating: 0 }).populate({
       path: "reviews",
@@ -103,14 +103,14 @@ const getReviews = async (req, res) => {
 
 const createReview = async (req, res) => {
   try {
-    const _id = req.params.id;
+    const _id = req.params?.id;
     const { review } = req.body;
     const updatedDate = await Movie.updateOne(
       { _id: _id },
       {
         $push: {
           reviews: {
-            userId: req.session.user_session?._id,
+            userId: req.session?.user_session._id,
             review: review,
           },
         },
@@ -179,7 +179,7 @@ const editeExistReview = async (req, res) => {
 
 const deleteReview = async (req, res) => {
   try {
-    const _id = req.body.id || req.params.id;
+    const _id = req.body.id || req.params?.id;
 
     const deleteReview = await Movie.updateOne(
       { "reviews._id": _id }, // Replace with the document's _id you want to update

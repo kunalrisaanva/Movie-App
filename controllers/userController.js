@@ -77,7 +77,7 @@ const userLogin = async (req, res) => {
         );
 
         const session = req.session;
-        session.user_session = userUpdateData;
+        session?.user_session = userUpdateData;
     
         res
           .send({
@@ -102,7 +102,7 @@ const userLogin = async (req, res) => {
 const logout = async (req, res) => {
   try {
     const user = await User.findOne({
-      username: req.session.user_session.username,
+      username: req.session?.user_session.username,
     });
 
     const updateToken = await User.updateOne(
@@ -123,7 +123,7 @@ const logout = async (req, res) => {
 
 const user = async (req, res) => {
   try {
-    const _id = req.params.id || req.body.id;
+    const _id = req.params?.id || req.body.id;
 
     const user = await User.findById(_id);
 
@@ -137,7 +137,7 @@ const user = async (req, res) => {
 
 const getRatedMovies = async (req, res) => {
   try {
-    const user_id = req.params.id || req.body.id;
+    const user_id = req.params?.id || req.body.id;
 
     const aggregateData = await Movie.aggregate([
       {

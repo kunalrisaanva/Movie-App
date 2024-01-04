@@ -8,7 +8,7 @@ const verifyToken = async (req, res, next) => {
   try {
     const token =
       req.body.token ||
-      req.session.user_session.token ||
+      req.session.user_session?.token ||
       req.headers["authorization"];
 
     if (!token) {
@@ -16,7 +16,7 @@ const verifyToken = async (req, res, next) => {
         .status(200)
         .send({ success: false, msg: "token is required for authrization..." });
     } else {
-      if (token === req.session.user_session.token) {
+      if (token === req.session.user_session?.token) {
         const decode = await jwt.verify(token, secret_key);
 
         req.user = decode;
