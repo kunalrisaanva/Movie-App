@@ -12,17 +12,17 @@ const movieSchema = new mongoose.Schema({
   },
   
   actors: {
-    type:[String],
+    type:String,
     required:true
   },
 
   directors:  {
-    type:[String],
+    type:String,
     required:true
   },
 
   genres:  {
-    type:[String],
+    type:String,
     required:true
   },
 

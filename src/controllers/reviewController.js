@@ -138,10 +138,14 @@ const getMovieReviews = asyncHandler( async(req,res) =>{
 
 //  create new a review 
 const createReview = asyncHandler( async(req,res) =>{
+    const {movieId} = req.params
     const {review} = req.body
+
+    if(! isValidObjectId(movieId)) throw new ApiError(401, "Invalid Id")
 
     await Review.create({
         review,
+        movie:id,
         owner:req.user?._id
     });
 

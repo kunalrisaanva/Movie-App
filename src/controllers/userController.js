@@ -2,12 +2,11 @@ import { asyncHandler } from "../utils/AsyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { ApiError } from "../utils/ApiError.js"
 import { User } from "../models/user.model.js"
-
+import jwt from "jsonwebtoken"
 
 // genrate accessToken and refresToken 
 const genrateAccessAndRefreshTokens = async userId => {
     try {
-        
         
         const user = await User.findById(userId);
         const accesToken = user.genrateAccessToken()
@@ -92,7 +91,7 @@ const userLogin = asyncHandler( async(req,res) => {
 
     const loggedInUser = await User.findById(user?._id).select(" -password -refreshToken ")
 
-    req.session.tokens = {accesToken , refreshToken}  
+    req.session.tokens = {accesToken , refreshToken}  // set token into session storage
     
      return res
      .status(200)
@@ -112,25 +111,21 @@ const userLogin = asyncHandler( async(req,res) => {
 
 const logout = asyncHandler( async(req,res) => {
 
-
+    
     await User.findByIdAndUpdate(req.user?._id,{
         $unset:{
             refreshToken:1
         },
-    },{new:true})
+    })
 
-    req.session.destroy();
+    req.session.destroy()
 
     return res
     .status(200)
     .json(
-       new ApiResponse(200 
-           , {
-               user:loggedInUser,
-               accesToken,
-               refreshToken
-             } 
-           ," user fectched successfully ")
+       new ApiResponse(200 ,
+           {}
+           ," user logged out ")
     )
 
     
@@ -139,17 +134,48 @@ const logout = asyncHandler( async(req,res) => {
 
 // refreshToken  optional 
 
+const refreshAcessToken = asyncHandler( async(req,res) =>{
+    // console.log()
+    const incomingRefreshToken =
+    req.session?.tokens.refreshToken || req.body.refreshToken;
 
-const refreshToken = asyncHandler( async(req,res) =>{
+if (!incomingRefreshToken) {
+    throw new ApiError(401, " Unauthrized Request ");
+}
+try {
+    const decodedToken =  jwt.verify(
+        incomingRefreshToken,
+        process.env.REFRESH_TOKEN_SECRET,
+    );
+        
+    const user = await User.findById(decodedToken?._id);
+    
+    if (!user) {
+        throw new ApiError(401, " Invalid Refresh Token ");
+    }
+    
+    if (incomingRefreshToken !== user?.refreshToken) {
+        throw new ApiError(401, "  Refresh Token is Expired or used  ");
+    }
 
-    let incomingRefresToken;
+    const { accesToken, refreshToken } = await genrateAccessAndRefreshTokens(
+        user._id
+    );
 
+    req.session.tokens = {accesToken , refreshToken} // set token into session storage 
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200 , {} ," reviews fetched successfully ")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                { accesToken, refreshToken },
+                "refresh Token refreshed"
+            )
+        );
+} catch (error) {
+    throw new  ApiError(401, error?.message || " Invalid refresh token ");
+}
 
 })
 
@@ -176,5 +202,6 @@ const refreshToken = asyncHandler( async(req,res) =>{
     userLogin,
     logout,
     getUserDetails,
+    refreshAcessToken
     
  }

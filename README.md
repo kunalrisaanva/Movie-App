@@ -1,3 +1,3 @@
 # Movie-App-Backend
 
-- [model-link](https://app.eraser.io/workspace/YtPqZ1VogxGy1jzIDkzj?origin=share)
+- [model-link](https://app.eraser.io/workspace/Pr89SJ0bcYPwpqXjbpBX)

@@ -4,13 +4,14 @@ import {
     getSpecificMovie,
     searchMovie,
     actorsList,
-    directorList
+    directorList,
+    createMovie
 } from "../controllers/movieController.js";
 
 import { verifyJwt } from "../middlewares/auth.middleware.js";
 const router = Router();
 
-router.use( verifyJwt );
+// router.use( verifyJwt );
 
 
 router.route("/movies").get(movie_list);
@@ -20,6 +21,9 @@ router.route("/recommendations").get();
 router.route("/genres").get();
 router.route("/actors").get(actorsList);
 router.route("/directors").get(directorList);
+
+
+router.route("/create").post(createMovie)
 
 
 

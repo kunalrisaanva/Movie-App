@@ -7,8 +7,6 @@ import {
 import { verifyJwt } from "../middlewares/auth.middleware.js";
 const router = Router();
 
-// routes.get("/users/:id/ratings",verifyToken, userController.getRatedMovies);
-// routes.post("/movies/:id/rate",verifyToken, movieController.rateMovie);
 
 router.use( verifyJwt );
 

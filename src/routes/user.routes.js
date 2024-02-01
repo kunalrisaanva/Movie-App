@@ -4,6 +4,7 @@ import {
   userLogin,
   logout,
   getUserDetails,
+  refreshAcessToken  
 
 } from "../controllers/userController.js"
 
@@ -18,6 +19,7 @@ routes.route("/login").post(userLogin); // login user
 
 routes.route("/get-user-details").get( verifyJwt, getUserDetails );
 routes.route("/logout").post(verifyJwt , logout);
+routes.route("/refresh-Token").post(refreshAcessToken);
 
 
 
