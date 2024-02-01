@@ -1,19 +1,23 @@
 {
+  "name": "movie-app",
+  "description": "movie-app",
+  "type": "module",
+  "main": "index.js",
   "author": {
     "name": "kunal",
     "email": "kunalrisaanva12@gmail.com"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^7.5.2"
+    "mongoose": "^7.5.2",
+    "prettier": "^3.2.4"
   },
   "scripts": {
-    "dev": "nodemon app.js -r dotenv/config"
+    "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
   },
   "devDependencies": {
     "dotenv": "^16.3.1",
