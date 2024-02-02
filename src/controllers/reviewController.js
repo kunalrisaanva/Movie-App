@@ -9,19 +9,19 @@ import { mongoose , isValidObjectId} from "mongoose";
 // Get reviews for a movie.
 
 const movieReviews = asyncHandler( async(req,res) =>{
-    const { _id } = req.params //movie id 
+    const { id } = req.params //movie id 
+    
+    if( ! isValidObjectId(id)) throw new ApiError(400, "Invalid id");
 
-    if( ! isValidObjectId(_id)) throw new ApiError(400, "invalid id");
-
-    const movie = await Movie.exists({_id});
+    const movie = await Movie.exists({_id:id});
 
     if(! movie) throw new ApiError(404, " movie does not exists ");
 
     const movieData = await Review.aggregate([
         {
            $match:{
-                movie: new mongoose.Types.ObjectId(_id)
-           } 
+                movie: new mongoose.Types.ObjectId(id)
+           }
         },
 
         {
@@ -45,7 +45,7 @@ const movieReviews = asyncHandler( async(req,res) =>{
                 from:"movies",
                 localField:"movie",
                 foreignField:"_id",
-                as:"vieos",
+                as:"movies",
                 pipeline:[
                    {
                         $project:{
@@ -54,12 +54,19 @@ const movieReviews = asyncHandler( async(req,res) =>{
                    }
                 ]
             }
+        },
+
+        {
+            $addFields:{
+                owner:{
+                    $first:"$owner"
+                }
+            }
         }
     ]);
 
-    if(movieData.length > 0) throw new ApiError(404," something went wrong while fetching data");
+    if(movieData.length < 0) throw new ApiError(404," something went wrong while fetching data");
 
-    console.log(movieData);
 
     return res
     .status(200)
@@ -73,17 +80,17 @@ const movieReviews = asyncHandler( async(req,res) =>{
 
 // Get movie reviews submitted by a user.
 const getMovieReviews = asyncHandler( async(req,res) =>{
-        const { _id } = req.params // user id
+        const { id } = req.params // user id
 
-        if(! isValidObjectId(_id)) throw new ApiError(400, "Invalid Id")
-        const user = await User.exists({_id});
+        if(! isValidObjectId(id)) throw new ApiError(400, "Invalid Id")
+        const user = await User.exists({_id:id});
 
         if(! user) throw new ApiError(404, " user does not exists");
 
         const movie = await Review.aggregate([
             {
                 $match:{
-                    owner: new mongoose.Types.ObjectId(_id)
+                    owner: new mongoose.Types.ObjectId(id)
                 }
             },
 
@@ -140,12 +147,12 @@ const getMovieReviews = asyncHandler( async(req,res) =>{
 const createReview = asyncHandler( async(req,res) =>{
     const {movieId} = req.params
     const {review} = req.body
-
+    console.log("start")
     if(! isValidObjectId(movieId)) throw new ApiError(401, "Invalid Id")
 
-    await Review.create({
+    const createdReview = await Review.create({
         review,
-        movie:id,
+        movie:movieId,
         owner:req.user?._id
     });
 
@@ -153,7 +160,7 @@ const createReview = asyncHandler( async(req,res) =>{
     return res
     .status(201)
     .json(
-        new ApiResponse(201, {} , "review created successfuly")
+        new ApiResponse(201, createdReview , "review created successfuly")
     )
 }) 
 
@@ -162,14 +169,14 @@ const createReview = asyncHandler( async(req,res) =>{
 // Get details of a specific review.
 const getSpeceficReview = asyncHandler( async(req,res) =>{
 
-    const { _id } = req.params;
+    const { id } = req.params;   // review id 
 
-    if(! isValidObjectId) throw new ApiError(401 , "Invalid Id")
+    if(! isValidObjectId(id)) throw new ApiError(401 , "Invalid Id")
 
-    const result = Review.aggregate([
+    const result = await Review.aggregate([
         {
             $match:{
-                _id: new mongoose.Types.ObjectId(_id)
+                _id: new mongoose.Types.ObjectId(id)
             }
         },
 
@@ -205,15 +212,23 @@ const getSpeceficReview = asyncHandler( async(req,res) =>{
                     }
                 ]
             }
+        },
+
+        {
+            $addFields:{
+                owner:{
+                    $first:"$owner"
+                }
+            }
         }
     ])
 
-    if((await result).length > 0) throw new ApiError(404,"something went wrong while collecting data ")
+    if( result.length < 0) throw new ApiError(404,"something went wrong while collecting data ")
 
     return res
     .status(201)
     .json(
-        new ApiResponse(201, {} , "review created successfuly")
+        new ApiResponse(201, result , "review created successfuly")
     )
 
 
@@ -223,22 +238,21 @@ const getSpeceficReview = asyncHandler( async(req,res) =>{
 
 // Edit an existing review.
 const editeExistReview = asyncHandler( async(req,res) =>{
-    const { _id } = req.params
+    const { id } = req.params  // review id 
     const { review } = req.body
 
-    if(! isValidObjectId) throw new ApiError(401 , "Invalid Id")
+    if(! isValidObjectId(id)) throw new ApiError(401 , "Invalid Id")
 
-    const updatedReview = await Review.findByIdAndUpdate(_id , {
+    const updatedReview = await Review.findByIdAndUpdate(id , {
         $set:{
             review
         }
-    })
-
+    },{new:true})
 
     return res
     .status(201)
     .json(
-        new ApiResponse(201, {} , "review created successfuly")
+        new ApiResponse(201, updatedReview , "review created successfuly")
     )
 }) 
 
@@ -246,9 +260,11 @@ const editeExistReview = asyncHandler( async(req,res) =>{
 
 // Delete a review.
 const deleteReview = asyncHandler( async(req,res) =>{
-    const { _id } = req.params
+    const { id } = req.params // review id 
     
-    await Review.findByIdAndDelete(_id);
+    if(! isValidObjectId(id)) throw new ApiError(400, "Invalid Id ")
+
+    await Review.findByIdAndDelete({_id:id});
 
     return res
     .status(201)

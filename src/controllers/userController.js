@@ -92,8 +92,10 @@ const userLogin = asyncHandler( async(req,res) => {
     const loggedInUser = await User.findById(user?._id).select(" -password -refreshToken ")
 
     req.session.tokens = {accesToken , refreshToken}  // set token into session storage
+
+    req.session.save()
     
-     return res
+     return res 
      .status(200)
      .json(
         new ApiResponse(200 
