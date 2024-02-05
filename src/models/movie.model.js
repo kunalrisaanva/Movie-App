@@ -10,21 +10,25 @@ const movieSchema = new mongoose.Schema({
     uniqe: true,
     trim:true
   },
-  
-  actors: {
-    type:String,
-    required:true
+
+
+  actors:{
+    type:[String],
+    required:[true , "actors is required"]
   },
 
-  directors:  {
-    type:String,
-    required:true
+
+  directors:{
+    type:[String],
+    required:[true , "directors is required"]
   },
 
-  genres:  {
-    type:String,
-    required:true
-  },
+  genres:{
+    type:[String],
+    required:[true , "genre is required"]
+  }
+
+
 
 }, { timestamps:true });
 

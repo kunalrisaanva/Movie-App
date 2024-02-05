@@ -9,7 +9,7 @@ import { isValidObjectId } from "mongoose";
 
 const movie_list = asyncHandler( async(req,res) =>{
       
-   const movies = await Movie.find().select(" -createdAt -updatedAt ");
+   const movies = await Movie.find().populate("actors genres directors")
 
    if(! movies) throw new ApiError(404, "something went wrong while feching");
 
@@ -30,7 +30,9 @@ const getSpecificMovie = asyncHandler( async(req,res) =>{
  
   if(! isValidObjectId(id)) throw new ApiError(404 , "Invalid Id ");
 
-   const movie = await Movie.findById(id).select(" -createdAt -updatedAt ")
+   const movie = await Movie.findById(id)
+
+
    if(! movie) throw new ApiError(404 , "movie not found ");
 
    return res
@@ -45,20 +47,56 @@ const getSpecificMovie = asyncHandler( async(req,res) =>{
 // Search for movies by title, genre, etc.
 
 const searchMovie = asyncHandler( async(req,res) =>{
-   
-   const { title , actors } = req.body
-   const searchData = await Movie.find({
-         $or:[
-            { title: { $regex: title, $options: 'i' } },
-            
-         ]
-      })
 
+   const { title , genre  } = req.body
+   
+   const result = await  Movie.find({
+      title: { $regex: new RegExp(title, 'i') },
+      genres: { $regex: new RegExp(genre, 'i') }
+    })
+   
       return res
       .status(200)
       .json(
-         new ApiResponse(200, searchData , " movie fetched successfully ")
+         new ApiResponse(200, result, " movie fetched successfully ")
       )
+})
+
+
+
+
+
+// recomandation movie 
+
+const recomandations = asyncHandler( async(req,res) =>{
+   
+})
+
+
+
+//  Retrieve a list of genres
+
+const genres = asyncHandler( async(req,res) =>{
+   const genreList = await Movie.aggregate([
+      {
+        $unwind:"$genres"
+      },
+
+      {
+         $group:{
+            _id:null,
+            genres:{
+               $push:"$genres"
+            }
+         }
+      }
+   ])
+   
+   return res
+   .status(200)
+   .json(
+      new ApiResponse(200, genreList[0].genres , " actors list fetched successfully ")
+   )
 })
 
 
@@ -66,12 +104,26 @@ const searchMovie = asyncHandler( async(req,res) =>{
 
 const actorsList = asyncHandler( async(req,res) =>{
 
-   const actorsList = await Movie.find().select(" -title -directors -genres -createdAt -updatedAt")
+   // const actorsList = await Movie.find().select( "actors")
+   const actorsList = await Movie.aggregate([
+      {
+        $unwind:"$actors"
+      },
+
+      {
+         $group:{
+            _id:null,
+            actors:{
+               $push:"$actors"
+            }
+         }
+      }
+   ])
    
    return res
    .status(200)
    .json(
-      new ApiResponse(200, actorsList , " actors list fetched successfully ")
+      new ApiResponse(200, actorsList[0].actors , " actors list fetched successfully ")
    )
 })
 
@@ -79,12 +131,24 @@ const actorsList = asyncHandler( async(req,res) =>{
 
 const directorList = asyncHandler( async(req,res) =>{
 
-   const directorsList = await Movie.find().select(" -title -actors -genres -createdAt -updatedAt")
+   const directorsList = await Movie.aggregate([
+      {
+        $unwind:"$directors"
+      },
 
+      {
+         $group:{
+            _id:null,
+            directors:{
+               $push:"$directors"
+            }
+         }
+      }
+   ])
    return res
    .status(200)
    .json(
-      new ApiResponse(200, directorsList , " movie fetched successfully ")
+      new ApiResponse(200, directorsList[0].directors , " movie fetched successfully ")
    )
 })
 
@@ -119,7 +183,10 @@ export {
    searchMovie,
    actorsList,
    directorList,
-   createMovie
+   createMovie,
+   recomandations,
+   genres,
+   // genrategenrase
 }
 
 

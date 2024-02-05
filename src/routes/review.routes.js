@@ -11,7 +11,7 @@ import {
 import { verifyJwt } from "../middlewares/auth.middleware.js";
 const router = Router();
 
-// router.use(verifyJwt);
+router.use(verifyJwt);
  
 
 router.route("/reviews/:movieId").post(createReview);
