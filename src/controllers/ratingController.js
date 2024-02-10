@@ -13,13 +13,18 @@ import mongoose ,{ isValidObjectId } from "mongoose";
 const rate_movie = asyncHandler( async(req,res) =>{
     const { id } = req.params  // movie id 
     
-    const { rating } = req.body
-    
+    const { rating } = req.body;
+
+    const exitedRating = await Rating.exists({movie:id});
+   
+    if(exitedRating) throw new ApiError(401,"you have already rated this movie");
+
+
     if(! isValidObjectId(id)) throw new ApiError(401 , "Invalid Id");
 
     const movie = await Movie.exists({_id:id})
 
-    if(! movie) throw new ApiError(404, "movie not found ")
+    if(! movie) throw new ApiError(404, "movie not found ");
 
     const createdRating = await Rating.create({
        rating,
@@ -42,7 +47,9 @@ const rate_movie = asyncHandler( async(req,res) =>{
 const rated_movies = asyncHandler( async(req,res) =>{
     const { id } = req.params // user id
     
-    if(! isValidObjectId(id)) throw new ApiError(401 , "Invalid Id")
+    if(! isValidObjectId(id)) throw new ApiError(401 , "Invalid Id");
+
+    const exitedRating = await Rating
 
     const ratedMovieData = await Rating.aggregate([
         {
@@ -89,12 +96,20 @@ const rated_movies = asyncHandler( async(req,res) =>{
                     $first:"$owner"
                 }
             }
+        },
+
+        {
+            $addFields:{
+                movie:{
+                    $first:"$movie"
+                }
+            }
         }
     ]) 
 
     if(ratedMovieData.length < 0) throw new ApiError(404, " something went wrong while collecting data ")
 
-
+     
     return res
     .status(200)
     .json(

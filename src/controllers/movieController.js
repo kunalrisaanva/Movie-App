@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/AsyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { ApiError } from "../utils/ApiError.js"
 import { User } from "../models/user.model.js";
+import { Rating } from "../models/rating.model.js"
 import { Movie } from "../models/movie.model.js";
 import { isValidObjectId } from "mongoose";
 
@@ -66,10 +67,15 @@ const searchMovie = asyncHandler( async(req,res) =>{
 
 
 
-// recomandation movie 
+// recomandation movie // 
 
 const recomandations = asyncHandler( async(req,res) =>{
-   
+   const recommendations = await Movie.find().sort({ createAt: -1 }).limit(10) 
+   return res
+   .status(200)
+   .json(
+      new ApiResponse(200, recommendations , " actors list fetched successfully ")
+   )
 })
 
 

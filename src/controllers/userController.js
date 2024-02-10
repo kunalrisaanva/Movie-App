@@ -5,6 +5,7 @@ import { User } from "../models/user.model.js"
 import jwt from "jsonwebtoken"
 
 // genrate accessToken and refresToken 
+
 const genrateAccessAndRefreshTokens = async userId => {
     try {
         
@@ -50,7 +51,7 @@ const userSignup = asyncHandler( async(req,res) => {
         email,
         password
     })
-    console.log(user)
+   
     
     const createdUser = await User.findById(user._id).select(" -createdAt -updatedAt ")
 
@@ -134,7 +135,7 @@ const logout = asyncHandler( async(req,res) => {
 })
 
 
-// refreshToken  optional 
+// refreshToken  
 
 const refreshAcessToken = asyncHandler( async(req,res) =>{
     // console.log()

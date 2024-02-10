@@ -62,6 +62,14 @@ const movieReviews = asyncHandler( async(req,res) =>{
                     $first:"$owner"
                 }
             }
+        },
+
+        {
+            $addFields:{
+                movies:{
+                    $first:"$movies"
+                }
+            }
         }
     ]);
 
@@ -115,16 +123,31 @@ const getMovieReviews = asyncHandler( async(req,res) =>{
                     from:"movies",
                     localField:"movie",
                     foreignField:"_id",
-                    as:"movie",
+                    as:"movies",
                     pipeline:[
-                        {
+                       {
                             $project:{
-                                title:1,
-                                actors:1,
-                                directors:1
+                               title:1,
+                               review:1 
                             }
-                        }
+                       }
                     ]
+                }
+            },
+
+            {
+                $addFields:{
+                    owner:{
+                        $first:"$owner"
+                    }
+                }
+            },
+    
+            {
+                $addFields:{
+                    movies:{
+                        $first:"$movies"
+                    }
                 }
             }
         ]);
@@ -147,8 +170,9 @@ const getMovieReviews = asyncHandler( async(req,res) =>{
 const createReview = asyncHandler( async(req,res) =>{
     const {movieId} = req.params
     const {review} = req.body
-    console.log("start")
-    if(! isValidObjectId(movieId)) throw new ApiError(401, "Invalid Id")
+    
+    if(! isValidObjectId(movieId)) throw new ApiError(401, "Invalid Id");
+     
 
     const createdReview = await Review.create({
         review,
@@ -206,8 +230,6 @@ const getSpeceficReview = asyncHandler( async(req,res) =>{
                     {
                         $project:{
                             title:1,
-                            actors:1,
-                            directors:1
                         }
                     }
                 ]
@@ -218,6 +240,14 @@ const getSpeceficReview = asyncHandler( async(req,res) =>{
             $addFields:{
                 owner:{
                     $first:"$owner"
+                }
+            }
+        },
+
+        {
+            $addFields:{
+                movie:{
+                    $first:"$movie"
                 }
             }
         }
