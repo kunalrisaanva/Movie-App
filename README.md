@@ -1,7 +1,7 @@
 # Movie-App-Backend
 
 - [model-link](https://app.eraser.io/workspace/Pr89SJ0bcYPwpqXjbpBX);
-- [Postman Api Documentation]()
+- [Postman Api Documentation](https://documenter.getpostman.com/view/21582927/2s9YyzeJtp)
 
 ---
 # Summary of this project

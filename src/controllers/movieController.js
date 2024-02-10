@@ -159,27 +159,7 @@ const directorList = asyncHandler( async(req,res) =>{
 })
 
 
-// create movie 
 
-const createMovie = asyncHandler( async(req,res) =>{
-   
-   const {title , genres , actors , directors} = req.body
-
-   const movie = await Movie.create({
-       title,
-       genres,
-       actors,
-       directors
-   })
-
-   return res
-   .status(200)
-   .json(
-      new ApiResponse(201, movie , " movie fetched successfully ")
-   )
-
-
-})
 
 
 
@@ -192,7 +172,6 @@ export {
    createMovie,
    recomandations,
    genres,
-   // genrategenrase
 }
 
 

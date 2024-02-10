@@ -5,7 +5,6 @@ import {
     searchMovie,
     actorsList,
     directorList,
-    createMovie,
     recomandations,
     genres,
     // genrategenrase
@@ -14,7 +13,7 @@ import {
 import { verifyJwt } from "../middlewares/auth.middleware.js";
 const router = Router();
 
-// router.use( verifyJwt );
+router.use( verifyJwt );
 
 
 router.route("/movies").get(movie_list);
@@ -26,8 +25,7 @@ router.route("/actors").get(actorsList);
 router.route("/directors").get(directorList);
 
 
-router.route("/create").post(createMovie)
-// router.route("/actor").post(genrategenrase)
+
 
 
 
